@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from realtyapp.models import Category, Apartment, Material, Metro, Room_count, Area_city
-from realtyapp.models import Currency, Balcony, Sity, Street, Images
+from realtyapp.models import Currency, Balcony, Sity, Street, Images, Images_url
 from django.conf import settings
 
 import json
@@ -12,10 +12,10 @@ def check_object_in_base(model, name):
         if name_base:
             for elem in name_base:
                 name_base = elem
-        if not name_base:
+        else:
             name_base = model.objects.create(name=name)
     else:
-        name_base = None
+        return
     return name_base
 
 class Command(BaseCommand):
@@ -49,7 +49,9 @@ class Command(BaseCommand):
 
                     url_object = key
                     metro_name = value.get('metro_name', '')
+
                     metro_base = check_object_in_base(model=Metro, name=metro_name)
+
                     metro_distance = value.get('metro_distance', '')
                     metro_distance_number = value.get('metro_distance_number', '')
                     total_square = value.get('total_square', '')
@@ -79,6 +81,7 @@ class Command(BaseCommand):
 
                     description = value.get('description', '')
 
+
                     area_city = value.get('area_city', '')
                     area_city_base = check_object_in_base(model=Area_city, name=area_city)
 
@@ -95,12 +98,14 @@ class Command(BaseCommand):
                                                  is_furniture= is_furniture, year_public= year_public, area_city= area_city_base,
                                                  month_public= month_public, day_public= day_public, time_public= time_public,
                                                  currency= currency_base, street= street_base, house_number= house_number,
-                                                 city= city_base, advertising_object= advertising_object, description=description)
+                                                 city=city_base,
+                                                         advertising_object=advertising_object,
+                                                         description=description)
 
                     apartment.category.add(categ)
                     apartment.save()
                     for url_image in list_url_images:
-                        image_base = Images.objects.create(url_image=url_image, apartment=apartment)
+                        image_base = Images_url.objects.create(url_image=url_image, apartment=apartment)
 
 
         else:
