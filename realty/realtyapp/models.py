@@ -1,5 +1,13 @@
 from django.db import models
 
+
+class TimeStamp(models.Model):
+    create = models.DateTimeField(auto_now_add=True)
+    update = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
 # Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=16, unique=True)
@@ -11,18 +19,7 @@ class Category(models.Model):
             self.name = 'Аренда'
         return self.name
 
-GEEKS_CHOICES_METRO = (('', ''),
-                 ('Площадь Тукая', 'Площадь Тукая'),
-                 ('Дубравная', 'Дубравная'),
-                 ('Проспект Победы', 'Проспект Победы'),
-                 ('Северный вокзал', 'Северный вокзал'),
-                 ('Суконная слобода', 'Суконная слобода'),
-                 ('Аметьево', 'Аметьево'),
-                 ('Горки', 'Горки'),
-                 ('Авиастроительная', 'Авиастроительная'),
-                  ('1Козья слобода', 'Козья слобода'),
-                 ('Яшьлек', 'Яшьлек'),
-                       ('Кремлёвская', 'Кремлёвская'))
+
 
 class Metro(models.Model):
     name = models.CharField(max_length=32, blank=True)
@@ -67,7 +64,8 @@ class Area_city(models.Model):
 class Images(models.Model):
     image = models.ImageField(upload_to='apartments', blank=True, null=True)
 
-class Apartment(models.Model):
+class Apartment(TimeStamp):
+
 
     url_object = models.URLField(blank=True)
     metro_name = models.ForeignKey(Metro, blank=True, null=True, on_delete=models.CASCADE)
@@ -106,9 +104,10 @@ class Images_url(models.Model):
 
 
 
-class Message_user(models.Model):
+class Message_user(TimeStamp):
     name = models.CharField(max_length=32)
     message = models.TextField()
     email = models.EmailField()
-    create = models.DateTimeField(auto_now_add=True)
     telefone = models.CharField(max_length=16, blank=True)
+
+

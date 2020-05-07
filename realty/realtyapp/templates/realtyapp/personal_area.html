@@ -39,6 +39,10 @@
                                         <li>{{ad.city.name}}</li>
         <li>{{ad.area_city.name}}</li>
         <li>{{ad.advertising_object}}</li>
+        <img src="{{ad.image.image.url}}">
+            {% for imag in ad.image.all %}
+                <img src="{{imag.image.url}}">
+            {% endfor %}
             {% for category in ad.category.all %}
           <li>{{category}}</li>
             {% endfor %}

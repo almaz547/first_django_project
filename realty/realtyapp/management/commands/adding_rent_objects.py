@@ -6,17 +6,14 @@ from django.conf import settings
 import json
 import os
 
+
 def check_object_in_base(model, name):
-    if name:
-        name_base = model.objects.filter(name=name)
-        if name_base:
-            for elem in name_base:
-                name_base = elem
-        else:
-            name_base = model.objects.create(name=name)
-    else:
-        return
-    return name_base
+    objects_base = model.objects.all()
+    for object_base in objects_base:
+        if object_base.name == name:
+            return object_base
+    object_base = model.objects.create(name=name)
+    return object_base
 
 class Command(BaseCommand):
 

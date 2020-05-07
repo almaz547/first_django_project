@@ -1,11 +1,12 @@
 from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, redirect
 from realtyapp.models import Apartment, Category, Images, Message_user, Street, Images_url, Metro, Room_count
 from realtyapp.models import Material, Balcony, Currency, Sity, Area_city
-from .forms import MessageForm, ApartmentForm, UpdateApartmentForm
+from .forms import MessageForm, ApartmentForm
 from django.urls import reverse, reverse_lazy
 from django.core.mail import send_mail
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView, View
 from django.views.generic.edit import CreateView
+
 
 def check_object(model, name):
     objects_base = model.objects.all()
@@ -35,8 +36,7 @@ class SaleListView(ListView):
     context_object_name = 'sales'
 
     def get_queryset(self):
-        category = Category.objects.get(name='sale')
-        sales = Apartment.objects.filter(category=category)
+        sales = Apartment.objects.filter(category__name__in=['sale', 'Продажа'])
         return sales
 
 # def rent(request):
@@ -50,8 +50,7 @@ class RentListView(ListView):
     context_object_name = 'rents'
 
     def get_queryset(self):
-        category = Category.objects.get(name='rent')
-        rents = Apartment.objects.filter(category=category)
+        rents = Apartment.objects.filter(category__name__in=['rent', 'Аренда'])
         return rents
 
 class New_buildingsListView(ListView):
@@ -133,6 +132,7 @@ class ApartmentDetailView(DetailView):
     def get_object(self, queryset=None):
         apartment = Apartment.objects.get(pk=self.apartment_id)
         self.images_url = Images_url.objects.filter(apartment=apartment)
+        self.images = Images.objects.filter(apartment=apartment)
         categorys = apartment.category.all()
         self.list_name_category = []
         for category in categorys:
@@ -143,6 +143,7 @@ class ApartmentDetailView(DetailView):
         context = super().get_context_data(*args, **kwargs)
         context['images_url'] = self.images_url
         context['categorys'] = self.list_name_category
+        context['images'] = self.images
         return context
 
 
@@ -156,20 +157,31 @@ class PersonalListView(ListView):
     context_object_name = 'ads_user'
 
     def get_queryset(self):
-
         ads_user = Apartment.objects.filter(сreator='user').all()
-
         return ads_user
+
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        images = Images.objects.all()
+        context['images'] = images
+        return context
 
 class ApartmentCreateFormView(FormView):
     form_class = ApartmentForm
     # fields = '__all__'
-    # model = Apartment
+    model = Apartment
     success_url = reverse_lazy('realtyapp:pers_area')
     template_name = 'realtyapp/create_apart.html'
 
     def form_valid(self, form):
-
+        # print()
+        # print(f'dir(form)  {dir(form)}')
+        # print()
+        # print(f'form.data  {form.data}')
+        # print()
+        # print(f'form.files  {form.files["images"]}')
+        # print()
         metro = check_object(Metro, form.data['metro_name'])
         count_room = check_object(model=Room_count, name=form.data['count_room'])
         material = check_object(model=Material, name=form.data['material'])
@@ -180,6 +192,8 @@ class ApartmentCreateFormView(FormView):
         area_city = check_object(model=Area_city, name=form.data['area_city'])
         category = check_object(model=Category, name=form.data['category'])
 
+        image = Images.objects.create(image=form.files["images"])
+
         apartment = Apartment.objects.create(metro_name=metro, floor_number=form.data['floor_number'],
                                              metro_distance=form.data['metro_distance'], total_square=form.data['total_square'],
                                              living_square=form.data['living_square'], floor_total=form.data['floor_total'],
@@ -189,91 +203,127 @@ class ApartmentCreateFormView(FormView):
                                              currency=currency, house_number=form.data['house_number'],
                                              street=street, city=city, area_city=area_city,
                                              advertising_object=form.data['advertising_object'], description=form.data['description'],
-                                             сreator=form.data['сreator'])
+                                             сreator=form.data['сreator'], image=image)
         apartment.category.add(category)
         apartment.save()
         return super().form_valid(form)
 
-    # def get_queryset(self):
-    #
-    #     return rents
-
-    # def form_valid(self, form):
-    #     print(f'form.data  {form.data}')
-    #     count_room = form['count_room']
-    #     print(f'count_room  {count_room}')
-    #     street = form['street'].value()
-    #     print(f'street  {street}')
-    #     Street.objects.create(name=street)
-    #     return super().form_valid(form)
-    #
-    # def form_invalid(self, form):
-    #     print(f'form_invalid.errors  {form.errors}')
-    #     return super().form_invalid(form)
-    #
-    # def post(self, request, *args, **kwargs):
-    #     post = request.POST
-    #     # print(f'post  {post}')
-    #     self.count_room = post['count_room']
-    #     # print(f'count_room  {self.count_room}')
-    #     self.material = post['material']
-    #     self.street = post['street']
-    #     self.city = post['city']
-    #     return super().post(request, *args, **kwargs)
 
 
-# class ApartmentUpdataView(UpdateView):
-#     form_class = UpdateApartmentForm
-#     # fields = '__all__'
-#     model = Apartment
-#     success_url = reverse_lazy('realtyapp:pers_area')
-#     template_name = 'realtyapp/updata_apart.html'
-#
-#     def get(self, request, *args, **kwargs):
-#         self.apartment_id = kwargs['pk']
-#         print(f'self.apartment_id  {self.apartment_id}')
-#         apartment = Apartment.objects.get(pk=self.apartment_id)
-#         print(f'apartment  {apartment}')
-#         self.metro_name = apartment.metro_name
-#         # print(f'self.metro_name  {self.metro_name}')
-#         self.marerial = apartment.material
-#         print(f'apartment.material  {apartment.material}')
-#         form = UpdateApartmentForm(instance=apartment)
-#         return render(request, 'realtyapp/updata_apart.html', context={'form': form})
+class ApartmentUpdataView(FormView):
+    form_class = ApartmentForm
+    success_url = reverse_lazy('realtyapp:pers_area')
+    template_name = 'realtyapp/updata_apart.html'
 
-class ApartmentUpdataView(View):
-    def get(self, request, pk):
-        apartment = Apartment.objects.get(pk=pk)
-        form = UpdateApartmentForm(instance=apartment)
-        return render(request, 'realtyapp/updata_apart.html', context={'form': form})
 
-    def post(self, request, pk):
-        apartment = Apartment.objects.get(pk=pk)
-        new_form = UpdateApartmentForm(request.POST, instance=apartment)
+    def get(self, request, *args, **kwargs):
+        self.apartment_id = kwargs['pk']
+        self.apartment = Apartment.objects.get(pk=self.apartment_id)
+        return super().get(self, request, *args, **kwargs)
 
-        if new_form.is_valid():
-            new_apartment = new_form.save()
-            return redirect(new_apartment)
-        return render(request, 'realtyapp/updata_apart.html', context={'form': new_form})
-    # def get_queryset(self):
-    #     apartment = Apartment.objects.get(pk=self.apartment_id)
-    #     print(f'apartment  {apartment}')
-    #     # print(f'apartment.metro_name  {apartment.metro_distance}')
-    #     return apartment
+    def get_success_url(self):
+        print(f'get_success_url(self)  {super().get_success_url()}')
+        self.success_url = f'/apartment/{self.apartment_id}/'
+        print(f'self.success_url  {self.success_url}')
+        return self.success_url
 
-    # def get_object(self, queryset=None):
-    #
-    #     return get_object_or_404(Apartment, pk=self.apartment_id)
-    #
-    #
-    # def get_context_data(self, *args, **kwargs):
-    #     context = super().get_context_data(*args, **kwargs)
-    #
-    #     context['metro_name'] = self.metro_name
-    #     print(f'self.apartment.metro_name   {self.metro_name}')
-    #     return context
+
+
+    def get_initial(self):
+        # print(f'self.kwargs  {self.kwargs}')
+        self.initial['metro_name'] = self.apartment.metro_name
+        self.initial['floor_number'] = self.apartment.floor_number
+        self.initial['metro_distance'] = self.apartment.metro_distance
+        self.initial['total_square'] = self.apartment.total_square
+        self.initial['living_square'] = self.apartment.living_square
+        self.initial['floor_total'] = self.apartment.floor_total
+        self.initial['count_room'] = self.apartment.count_room
+        self.initial['material'] = self.apartment.material
+        self.initial['balcony_type'] = self.apartment.balcony_type
+        self.initial['is_home_appliances'] = self.apartment.is_home_appliances
+        self.initial['is_furniture'] = self.apartment.is_furniture
+        self.initial['cost'] = self.apartment.cost
+        self.initial['currency'] = self.apartment.currency
+        self.initial['house_number'] = self.apartment.house_number
+        self.initial['street'] = self.apartment.street
+        self.initial['city'] = self.apartment.city
+        self.initial['area_city'] = self.apartment.area_city
+        self.initial['advertising_object'] = self.apartment.advertising_object
+        self.initial['description'] = self.apartment.description
+        if self.apartment.image:
+            self.initial['images'] = self.apartment.image.image
+        print()
+        print(f'self.initial  {self.initial}')
+        print()
+        list_category = []
+        for category in self.apartment.category.all():
+            list_category.append(category)
+        self.initial['category'] = list_category
+        print(f'initial  {self.initial}')
+        print(f'dir(self)  {dir(self)}')
+        return super().get_initial()
+
+    def form_valid(self, form):
+        print('Сработал  form_valid')
+        print()
+        print(f'dir(form)  {dir(form)}')
+        print()
+        print(f'form.cleaned_data  {form.cleaned_data}')
+        print(f"self.apartment_id valid {self.apartment_id}")
+        apartment = Apartment.objects.get(pk=self.apartment_id)
+
+        apartment.metro_name = check_object(Metro, form.cleaned_data['metro_name'])
+        apartment.floor_number = form.cleaned_data['floor_number']
+        apartment.metro_distance = form.cleaned_data['metro_distance']
+        apartment.total_square = form.cleaned_data['total_square']
+        apartment.living_square = form.cleaned_data['living_square']
+        apartment.floor_total = form.cleaned_data['floor_total']
+        apartment.count_room = check_object(Room_count, form.cleaned_data['count_room'])
+        apartment.material = check_object(Material, form.cleaned_data['material'])
+        apartment.balcony_type = check_object(Balcony, form.cleaned_data['balcony_type'])
+        apartment.is_home_appliances = form.cleaned_data['is_home_appliances']
+        apartment.is_furniture = form.cleaned_data['is_furniture']
+        apartment.cost = form.cleaned_data['cost']
+        apartment.currency = check_object(Currency, form.cleaned_data['currency'])
+        apartment.house_number = form.cleaned_data['house_number']
+        apartment.street = check_object(Street, form.cleaned_data['street'])
+        apartment.city = check_object(Sity, form.cleaned_data['city'])
+        apartment.area_city = check_object(Area_city, form.cleaned_data['area_city'])
+        apartment.advertising_object = form.cleaned_data['advertising_object']
+        apartment.description = form.cleaned_data['description']
+
+        image = Images.objects.create(image=form.cleaned_data['images'])
+        apartment.image = image
+
+        categorys = Category.objects.all()
+        categor = False
+        for category in categorys:
+            if category.name == form.cleaned_data['category']:
+                apartment.category.clear()
+                apartment.category.add(category)
+                categor = True
+
+
+        if not categor:
+            categor = Category.objects.create(name=form.cleaned_data['category'])
+            apartment.category.clear()
+            apartment.category.add(categor)
+
+        apartment.save()
+        return super().form_valid(form)
+
+    def post(self, request, *args, **kwargs):
+        self.apartment = Apartment.objects.get(pk=kwargs['pk'])
+        self.apartment_id = kwargs['pk']
+        return super().post(request, *args, **kwargs)
+
+
+
+
 
 class  ApartmentDeleteView(DeleteView):
     template_name = 'realtyapp/delete_confirm.html'
     model = Apartment
     success_url = reverse_lazy('realtyapp:pers_area')
+
+

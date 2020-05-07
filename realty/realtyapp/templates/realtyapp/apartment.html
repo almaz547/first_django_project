@@ -45,10 +45,19 @@
     <h5>Дата публикации  {{ apartment.year_public }} {{ apartment.month_public }} {{ apartment.day_public }}
       {{ apartment.time_public }}</h5>
     {% for image in images_url %}
-
+        {{image.url_image}}
         <img src="{{image.url_image}}">
+
         <br>
         <br>
+    {% endfor %}
+
+<!--        <img src="{{apartment.image.image.url}}">-->
+    {% for imag in images %}
+        <hr>
+        <img src="{{imag.image.url}}">
+        <hr>
+
     {% endfor %}
 
 {% endblock %}
