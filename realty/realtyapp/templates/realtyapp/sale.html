@@ -19,7 +19,7 @@
       <div class="col-lg-8 col-md-10 mx-auto">
         {% for item in sales %}
         <div class="post-preview">
-          <a href="{% url 'realtyapp:apartment' pk=item.pk %}">
+          <a href="{% url 'realtyapp:apartment' id=item.id %}">
             <h2 class="post-title">
              <h3>{{ item.count_room.name }}-комн. квартира, {{ item.total_square }} м.кв.,</h3>
               <h3>{{ item.floor_number }}/{{ item.floor_total }} этаж</h3>

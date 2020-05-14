@@ -5,15 +5,12 @@
 {% endblock %}
 
 {% block topic %}
-
-   {% for categor in categorys %}
-        {% if categor == "rent" %}
-              <h1>Сдается</h1>
-        {% endif %}
-        {% if categor == "sale" %}
-            <h1>Продается</h1>
-        {% endif %}
-    {% endfor %}
+    {% if name_category == "rent" %}
+          <h1>Сдается</h1>
+    {% endif %}
+    {% if name_category == "sale" %}
+        <h1>Продается</h1>
+    {% endif %}
   <br>
   <h3>{{ apartment.count_room.name }}-комн. квартира, {{ apartment.total_square }} м.кв.,</h3>
               <h3>{{ apartment.floor_number }}/{{ apartment.floor_total }} этаж</h3>
@@ -27,7 +24,6 @@
 {% endblock %}
 
 {% block content %}
-
     <h5>{{ apartment.description }}</h5>
     <br>
     <h5>Метро  ---  {{ apartment.metro_name.name }}  {{ apartment.metro_distance }}</h5>
@@ -44,20 +40,11 @@
     <h5>{{ apartment.is_furniture }}</h5>
     <h5>Дата публикации  {{ apartment.year_public }} {{ apartment.month_public }} {{ apartment.day_public }}
       {{ apartment.time_public }}</h5>
-    {% for image in images_url %}
-        {{image.url_image}}
+    {% for image in images %}
+
         <img src="{{image.url_image}}">
-
         <br>
         <br>
-    {% endfor %}
-
-<!--        <img src="{{apartment.image.image.url}}">-->
-    {% for imag in images %}
-        <hr>
-        <img src="{{imag.image.url}}">
-        <hr>
-
     {% endfor %}
 
 {% endblock %}
