@@ -1,22 +1,19 @@
 from django.core.management.base import BaseCommand
 from realtyapp.models import Category, Apartment, Material, Metro, Room_count, Area_city
-from realtyapp.models import Currency, Balcony, Sity, Street, Images
+from realtyapp.models import Currency, Balcony, Sity, Street, Images, Images_url
 from django.conf import settings
 
 import json
 import os
 
+
 def check_object_in_base(model, name):
-    if name:
-        name_base = model.objects.filter(name=name)
-        if name_base:
-            for elem in name_base:
-                name_base = elem
-        if not name_base:
-            name_base = model.objects.create(name=name)
-    else:
-        name_base = None
-    return name_base
+    objects_base = model.objects.all()
+    for object_base in objects_base:
+        if object_base.name == name:
+            return object_base
+    object_base = model.objects.create(name=name)
+    return object_base
 
 class Command(BaseCommand):
 
@@ -107,7 +104,7 @@ class Command(BaseCommand):
                     apartment.category.add(categ)
                     apartment.save()
                     for url_image in list_url_images:
-                        image_base = Images.objects.create(url_image=url_image, apartment=apartment)
+                        image_base = Images_url.objects.create(url_image=url_image, apartment=apartment)
 
         else:
             print(f'4  Словарь пуст')

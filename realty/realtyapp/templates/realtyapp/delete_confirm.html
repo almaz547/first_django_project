@@ -5,21 +5,17 @@
 {% endblock %}
 
 {% block topic %}
+    <h1>Удаление</h1>
 
-   {% for categor in categorys %}
-        {% if categor == "rent" %}
-              <h1>Сдается</h1>
-        {% endif %}
-        {% if categor == "sale" %}
-            <h1>Продается</h1>
-        {% endif %}
-    {% endfor %}
   <br>
   <h3>{{ apartment.count_room.name }}-комн. квартира, {{ apartment.total_square }} м.кв.,</h3>
               <h3>{{ apartment.floor_number }}/{{ apartment.floor_total }} этаж</h3>
               <h3>{{ apartment.street.name }}, {{ apartment.house_number }}, {{ apartment.city.name }}</h3>
               <br>
               <h2>{{ apartment.cost }} {{ apartment.currency.name }}</h2>
+        {% for category in object.category.all %}
+            {{category}}
+        {% endfor %}
 {% endblock %}
 
 {% block whattopic %}
@@ -44,20 +40,17 @@
     <h5>{{ apartment.is_furniture }}</h5>
     <h5>Дата публикации  {{ apartment.year_public }} {{ apartment.month_public }} {{ apartment.day_public }}
       {{ apartment.time_public }}</h5>
-    {% for image in images_url %}
-        {{image.url_image}}
+    {% for image in images %}
+
         <img src="{{image.url_image}}">
-
         <br>
         <br>
-    {% endfor %}
-
-<!--        <img src="{{apartment.image.image.url}}">-->
-    {% for imag in images %}
-        <hr>
-        <img src="{{imag.image.url}}">
-        <hr>
 
     {% endfor %}
+        <h2>Удалить это объявление ?</h2>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Да</button>
+    </form>
 
 {% endblock %}
