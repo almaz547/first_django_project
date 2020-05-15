@@ -1,4 +1,5 @@
 from django.db import models
+from userapp.models import ApartmentUser
 
 
 class TimeStamp(models.Model):
@@ -61,8 +62,6 @@ class Area_city(models.Model):
     def __str__(self):
         return self.name
 
-class Images(models.Model):
-    image = models.ImageField(upload_to='apartments', blank=True, null=True)
 
 class Apartment(TimeStamp):
 
@@ -93,8 +92,15 @@ class Apartment(TimeStamp):
     advertising_object = models.CharField(max_length=70, blank=True)
     description = models.CharField(max_length=150, blank=True)
     category = models.ManyToManyField(Category)
-    сreator = models.CharField(max_length=36, blank=True)
-    image = models.ForeignKey(Images, blank=True, null=True, on_delete=models.CASCADE)
+
+    user = models.ForeignKey(ApartmentUser, on_delete=models.CASCADE)
+
+
+class Images(models.Model):
+    image = models.ImageField(upload_to='apartments', blank=True, null=True)
+    apartment = models.ForeignKey(Apartment, on_delete=models.CASCADE)
+
+
 
 class Images_url(models.Model):
 

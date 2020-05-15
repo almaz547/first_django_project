@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Фото удаление
+{% endblock %}
+
+{% block topic %}
+    <h1>Удаление</h1>
+
+
+{% endblock %}
+
+{% block whattopic %}
+    Фото
+{% endblock %}
+
+{% block content %}
+
+ <img src="{{object.image.url}}">
+<hr>
+<hr>
+<h2>Удалить это Фото ?</h2>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Да</button>
+    </form>
+
+{% endblock %}

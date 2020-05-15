@@ -50,15 +50,31 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'realtyapp:new_buildings' %}">новостройки</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'realtyapp:message' %}">сообщение</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'realtyapp:message' %}">телефон</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'realtyapp:pers_area' %}">Войти</a>
-          </li>
+
+<!--          <li class="nav-item">-->
+<!--            <a class="nav-link" href="{% url 'realtyapp:message' %}">телефон</a>-->
+<!--          </li>-->
+          {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'realtyapp:pers_area' %}">Кабинет</a>
+            </li>
+            <li class="nav-item">
+                  <a class="nav-link" href="{% url 'realtyapp:message' %}">сообщение</a>
+                </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'userapp:logout' %}">Выход</a>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'userapp:login' %}">Вход</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'userapp:register' %}">Регистрация</a>
+            </li>
+          {% endif %}
+
+
+
         </ul>
       </div>
     </div>

@@ -88,10 +88,8 @@ class ApartmentForm(forms.Form):
 
     category = forms.ChoiceField(label='Тип объявления', choices=GEEKS_CHOICES_CATEGORY,
                                  widget=forms.Select(attrs={'class': 'form-control'}))
-    сreator = forms.CharField(label='Создатель', initial='user',
-                              widget=forms.TextInput(attrs={'class': 'form-control'}))
 
-    images = forms.ImageField(label='Фотография', required=False)
+    images = forms.ImageField(label='Добавить фото', required=False)
 
 
 

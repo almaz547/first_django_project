@@ -19,9 +19,37 @@
     <div class="col-lg-8 col-md-10 mx-auto">
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
+            {# form.as_p #}
+
+            {% for field in form %}
+                <p>{{field.label}}</p>
+                    {% for error in field.errors %}
+                        {{error}}
+                    {% endfor %}
+                <p>{{field}}</p>
+
+            {% endfor %}
+
+                    <hr>
 
             <button type="submit" class="btn btn-primary">Сохранить</button>
         </form>
+
+            <hr>
+                    Ваши фотографии
+                {% for imag in images %}
+
+                    <img src="{{imag.image.url}}">
+                    <a href="{% url 'realtyapp:delete_image' pk=imag.pk %}">
+                        <p class="btn btn-danger">Удалить фото</p>
+                        <p>
+                            <hr>
+                        </p>
+                    </a>
+                {% endfor %}
+
+
     </div>
-</div>{% endblock %}
+</div>
+
+{% endblock %}

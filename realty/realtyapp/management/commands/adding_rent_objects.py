@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from realtyapp.models import Category, Apartment, Material, Metro, Room_count, Area_city
 from realtyapp.models import Currency, Balcony, Sity, Street, Images, Images_url
 from django.conf import settings
+from userapp.models import ApartmentUser
 
 import json
 import os
@@ -84,7 +85,7 @@ class Command(BaseCommand):
 
                     list_url_images = value.get('images', [])
                     advertising_object = value.get('advertising_object', '')
-
+                    user = ApartmentUser.objects.get(username='Almaz')
                     categ = Category.objects.get(name='rent')
 
                     apartment = Apartment.objects.create(url_object= url_object, metro_name= metro_base, metro_distance= metro_distance,
@@ -97,7 +98,7 @@ class Command(BaseCommand):
                                                  currency= currency_base, street= street_base, house_number= house_number,
                                                  city=city_base,
                                                          advertising_object=advertising_object,
-                                                         description=description)
+                                                         description=description, user=user)
 
                     apartment.category.add(categ)
                     apartment.save()
