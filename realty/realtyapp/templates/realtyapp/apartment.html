@@ -7,10 +7,10 @@
 {% block topic %}
 
    {% for categor in categorys %}
-        {% if categor == "rent" %}
+        {% if categor == "rent" or categor == "Аренда" %}
               <h1>Сдается</h1>
         {% endif %}
-        {% if categor == "sale" %}
+        {% if categor == "sale" or categor == "Продажа" %}
             <h1>Продается</h1>
         {% endif %}
     {% endfor %}
@@ -44,20 +44,26 @@
     <h5>{{ apartment.is_furniture }}</h5>
     <h5>Дата публикации  {{ apartment.year_public }} {{ apartment.month_public }} {{ apartment.day_public }}
       {{ apartment.time_public }}</h5>
-    {% for image in images_url %}
-        {{image.url_image}}
-        <img src="{{image.url_image}}">
+        {% if images_url %}
+            {% for image in images_url %}
+                {{image.url_image}}
+                <img src="{{image.url_image}}">
 
-        <br>
-        <br>
-    {% endfor %}
+                <br>
+                <br>
+            {% endfor %}
+        {% endif %}
 
-<!--        <img src="{{apartment.image.image.url}}">-->
+
+{% if images %}
     {% for imag in images %}
         <hr>
+        {% if imag.image.url %}
         <img src="{{imag.image.url}}">
         <hr>
+        {% endif %}
 
     {% endfor %}
+{% endif %}
 
 {% endblock %}

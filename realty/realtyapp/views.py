@@ -6,6 +6,7 @@ from django.urls import reverse, reverse_lazy
 from django.core.mail import send_mail
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView, View
 from django.views.generic.edit import CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin , UserPassesTestMixin
 
 
 def check_object(model, name):
@@ -89,14 +90,14 @@ class New_buildingsListView(ListView):
 #         else:
 #             return render(request, 'realtyapp/message.html', context={'message': message})
 
-class MessageCreateView(CreateView):
+class MessageCreateView(LoginRequiredMixin, CreateView):
     model = Message_user
     form_class = MessageForm
     success_url = reverse_lazy('realtyapp/index.html')
     template_name = 'realtyapp/message.html'
 
     def form_valid(self, form):
-        print(f'form  {form}')
+        # print(f'form  {form}')
         name = form['name'].value()
         email = form['email'].value()
         text_message = form['message'].value()
@@ -133,6 +134,7 @@ class ApartmentDetailView(DetailView):
         apartment = Apartment.objects.get(pk=self.apartment_id)
         self.images_url = Images_url.objects.filter(apartment=apartment)
         self.images = Images.objects.filter(apartment=apartment)
+        print(f'self.images  {self.images}')
         categorys = apartment.category.all()
         self.list_name_category = []
         for category in categorys:
@@ -150,27 +152,32 @@ class ApartmentDetailView(DetailView):
 # def personal_area(request):
 #     return render(request, 'realtyapp/personal_area.html', context={})
 
-class PersonalListView(ListView):
+class PersonalListView(UserPassesTestMixin, ListView):
     model = Apartment
     success_url = reverse_lazy('realtyapp:index')
     template_name = 'realtyapp/personal_area.html'
-    context_object_name = 'ads_user'
+    # context_object_name = 'ads_user'
+
+    def test_func(self):
+        return self.request.user
 
     def get_queryset(self):
-        ads_user = Apartment.objects.filter(сreator='user').all()
-        return ads_user
+        apartments_user = Apartment.objects.filter(user=self.request.user).all()
+        # self.images = []
+        # for apartment in apartments_user:
+        #     images_apartment = Images.objects.filter(apartment=apartment)
+        #     self.images.append(images_apartment)
+        return apartments_user
 
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        images = Images.objects.all()
-        context['images'] = images
-        return context
+    # def get_context_data(self, *args, **kwargs):
+    #     context = super().get_context_data(*args, **kwargs)
+    #     print(f'self.images  {self.images}')
+    #     context['images'] = self.images
+    #     return context
 
-class ApartmentCreateFormView(FormView):
+class ApartmentCreateFormView(LoginRequiredMixin, FormView):
     form_class = ApartmentForm
-    # fields = '__all__'
-    model = Apartment
     success_url = reverse_lazy('realtyapp:pers_area')
     template_name = 'realtyapp/create_apart.html'
 
@@ -190,9 +197,12 @@ class ApartmentCreateFormView(FormView):
         street = check_object(model=Street, name=form.data['street'])
         city = check_object(model=Sity, name=form.data['city'])
         area_city = check_object(model=Area_city, name=form.data['area_city'])
+        user = self.request.user
         category = check_object(model=Category, name=form.data['category'])
 
-        image = Images.objects.create(image=form.files["images"])
+        imag = form.files.get('images', None)
+
+
 
         apartment = Apartment.objects.create(metro_name=metro, floor_number=form.data['floor_number'],
                                              metro_distance=form.data['metro_distance'], total_square=form.data['total_square'],
@@ -203,18 +213,22 @@ class ApartmentCreateFormView(FormView):
                                              currency=currency, house_number=form.data['house_number'],
                                              street=street, city=city, area_city=area_city,
                                              advertising_object=form.data['advertising_object'], description=form.data['description'],
-                                             сreator=form.data['сreator'], image=image)
+                                             user=user)
+        if imag:
+            image = Images.objects.create(image=imag, apartment=apartment)
         apartment.category.add(category)
         apartment.save()
         return super().form_valid(form)
 
 
 
-class ApartmentUpdataView(FormView):
+class ApartmentUpdataView(UserPassesTestMixin, FormView):
     form_class = ApartmentForm
     success_url = reverse_lazy('realtyapp:pers_area')
     template_name = 'realtyapp/updata_apart.html'
 
+    def test_func(self):
+        return self.request.user
 
     def get(self, request, *args, **kwargs):
         self.apartment_id = kwargs['pk']
@@ -222,9 +236,9 @@ class ApartmentUpdataView(FormView):
         return super().get(self, request, *args, **kwargs)
 
     def get_success_url(self):
-        print(f'get_success_url(self)  {super().get_success_url()}')
+        # print(f'get_success_url(self)  {super().get_success_url()}')
         self.success_url = f'/apartment/{self.apartment_id}/'
-        print(f'self.success_url  {self.success_url}')
+        # print(f'self.success_url  {self.success_url}')
         return self.success_url
 
 
@@ -250,26 +264,21 @@ class ApartmentUpdataView(FormView):
         self.initial['area_city'] = self.apartment.area_city
         self.initial['advertising_object'] = self.apartment.advertising_object
         self.initial['description'] = self.apartment.description
-        if self.apartment.image:
-            self.initial['images'] = self.apartment.image.image
-        print()
-        print(f'self.initial  {self.initial}')
-        print()
+
         list_category = []
         for category in self.apartment.category.all():
             list_category.append(category)
         self.initial['category'] = list_category
-        print(f'initial  {self.initial}')
-        print(f'dir(self)  {dir(self)}')
         return super().get_initial()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        images = Images.objects.filter(apartment=self.apartment)
+        context['images'] = images
+        return context
+
     def form_valid(self, form):
-        print('Сработал  form_valid')
-        print()
-        print(f'dir(form)  {dir(form)}')
-        print()
-        print(f'form.cleaned_data  {form.cleaned_data}')
-        print(f"self.apartment_id valid {self.apartment_id}")
+
         apartment = Apartment.objects.get(pk=self.apartment_id)
 
         apartment.metro_name = check_object(Metro, form.cleaned_data['metro_name'])
@@ -291,9 +300,8 @@ class ApartmentUpdataView(FormView):
         apartment.area_city = check_object(Area_city, form.cleaned_data['area_city'])
         apartment.advertising_object = form.cleaned_data['advertising_object']
         apartment.description = form.cleaned_data['description']
+        apartment.save()
 
-        image = Images.objects.create(image=form.cleaned_data['images'])
-        apartment.image = image
 
         categorys = Category.objects.all()
         categor = False
@@ -305,11 +313,14 @@ class ApartmentUpdataView(FormView):
 
 
         if not categor:
-            categor = Category.objects.create(name=form.cleaned_data['category'])
             apartment.category.clear()
+            categor = Category.objects.create(name=form.cleaned_data['category'])
             apartment.category.add(categor)
 
         apartment.save()
+        if form.cleaned_data["images"]:
+            Images.objects.create(image=form.cleaned_data['images'], apartment=apartment)
+
         return super().form_valid(form)
 
     def post(self, request, *args, **kwargs):
@@ -321,9 +332,19 @@ class ApartmentUpdataView(FormView):
 
 
 
-class  ApartmentDeleteView(DeleteView):
+class  ApartmentDeleteView(UserPassesTestMixin, DeleteView):
     template_name = 'realtyapp/delete_confirm.html'
     model = Apartment
     success_url = reverse_lazy('realtyapp:pers_area')
 
+    def test_func(self):
+        return self.request.user
 
+
+class  ImageDeleteView(UserPassesTestMixin, DeleteView):
+    template_name = 'realtyapp/delete_image_confirm.html'
+    model = Images
+    success_url = reverse_lazy('realtyapp:pers_area')
+
+    def test_func(self):
+        return self.request.user

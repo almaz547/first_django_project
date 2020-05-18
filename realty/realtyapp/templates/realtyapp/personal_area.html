@@ -15,12 +15,22 @@
 {% block content %}
     <ul class="navbar-nav ml-auto">
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'realtyapp:create_apart' %}">Создать объявление</a>
+            <a class="btn btn-primary" href="{% url 'realtyapp:create_apart' %}">Создать объявление</a>
+              <br>
+              <hr>
+
           </li>
-            <br>
-            {% for ad in ads_user %}
-                {{ad}}
-        <hr>
+
+        <li class="list-inline text-center">
+            <h2>Ваши объявления</h2>
+        </li>
+
+                       {% for ad in object_list %}
+
+
+        <a href="{% url 'realtyapp:apartment' pk=ad.pk %}">
+
+
                 <li>{{ad.description}}</li>
                 <li>{{ad.metro_name.name}}</li>
                 <li>{{ad.floor_number}}</li>
@@ -39,60 +49,29 @@
                                         <li>{{ad.city.name}}</li>
         <li>{{ad.area_city.name}}</li>
         <li>{{ad.advertising_object}}</li>
-        <img src="{{ad.image.image.url}}">
-            {% for imag in ad.image.all %}
-                <img src="{{imag.image.url}}">
-            {% endfor %}
+
+
             {% for category in ad.category.all %}
-          <li>{{category}}</li>
+                <li>{{category}}</li>
             {% endfor %}
-
-          <li class="nav-item">
-            <a class="btn btn-primary" href="{% url 'realtyapp:updata_apart' pk=ad.pk %}">Редактировать</a>
-          </li>
-        <hr>
-        <li class="nav-item">
-            <a class="btn btn-primary" href="{% url 'realtyapp:delete_apart' pk=ad.pk %}">Удалить</a>
-          </li>
-
-        <hr>
-            {% endfor %}
+    </a>
         </ul>
 
-<!--<div class="lg-img-wrap"><img class="lg-object lg-image" src="/api/catalog/sale/apartments/55228/image/2360916/"></div>-->
+    <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="btn btn-primary" href="{% url 'realtyapp:updata_apart' pk=ad.pk %}">Редактировать</a>
+              <hr>
+          </li>
 
-<!--      <div class="row">-->
-<!--        <div class="col-lg-8 col-md-10 mx-auto">-->
-<!--          <ul class="list-inline text-center">-->
-<!--            <li class="list-inline-item">-->
-<!--              <a href="#">-->
+        <li class="nav-item">
+            <a class="btn btn-primary" href="{% url 'realtyapp:delete_apart' pk=ad.pk %}">Удалить</a>
+            <hr>
+          </li>
+
+
+            {% endfor %}
+    </ul>
 
 
 
-<!--                <span class="fa-stack fa-lg">-->
-<!--                  <i class="fas fa-circle fa-stack-2x"></i>-->
-<!--                  <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>-->
-<!--                </span>-->
-<!--              </a>-->
-<!--            </li>-->
-<!--            <li class="list-inline-item">-->
-<!--              <a href="#">-->
-<!--                <span class="fa-stack fa-lg">-->
-<!--                  <i class="fas fa-circle fa-stack-2x"></i>-->
-<!--                  <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>-->
-<!--                </span>-->
-<!--              </a>-->
-<!--            </li>-->
-<!--            <li class="list-inline-item">-->
-<!--              <a href="#">-->
-<!--                <span class="fa-stack fa-lg">-->
-<!--                  <i class="fas fa-circle fa-stack-2x"></i>-->
-<!--                  <i class="fab fa-github fa-stack-1x fa-inverse"></i>-->
-<!--                </span>-->
-<!--              </a>-->
-<!--            </li>-->
-<!--          </ul>-->
-<!--          <p class="copyright text-muted">Copyright &copy; Your Website 2019</p>-->
-<!--        </div>-->
-<!--      </div>-->
 {% endblock %}

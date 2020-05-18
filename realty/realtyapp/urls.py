@@ -20,5 +20,6 @@ urlpatterns = [
     path('personal_area/', views.PersonalListView.as_view(), name='pers_area'),
     path('create_apart/', views.ApartmentCreateFormView.as_view(), name='create_apart'),
     path('updata_apart/<int:pk>/', views.ApartmentUpdataView.as_view(), name='updata_apart'),
-    path('delete_confirm/<int:pk>/', views.ApartmentDeleteView.as_view(), name='delete_apart')
+    path('delete_confirm/<int:pk>/', views.ApartmentDeleteView.as_view(), name='delete_apart'),
+    path('delete_image_confirm/<int:pk>', views.ImageDeleteView.as_view(), name='delete_image')
 ]
