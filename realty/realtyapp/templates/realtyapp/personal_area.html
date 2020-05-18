@@ -27,35 +27,36 @@
 
                        {% for ad in object_list %}
 
+    </ul>
 
         <a href="{% url 'realtyapp:apartment' pk=ad.pk %}">
 
 
-                <li>{{ad.description}}</li>
-                <li>{{ad.metro_name.name}}</li>
-                <li>{{ad.floor_number}}</li>
-                <li>{{ad.metro_distance}}</li>
-                <li>{{ad.total_square}}</li>
-                <li>{{ad.living_square}}</li>
-                <li>{{ad.floor_total}}</li>
-                <li>{{ad.count_room.name}}</li>
-                <li>{{ad.material.name}}</li>
-                <li>{{ad.balcony_type.name}}</li>
-                    <li>{{ad.is_home_appliances}}</li>
-                        <li>{{ad.is_furniture}}</li>
-                            <li>{{ad.cost}}</li>
-                                <li>{{ad.house_number}}</li>
-                                    <li>{{ad.street.name}}</li>
-                                        <li>{{ad.city.name}}</li>
-        <li>{{ad.area_city.name}}</li>
-        <li>{{ad.advertising_object}}</li>
+                <p>{{ad.description}}</p>
+                <p>{{ad.metro_name.name}}</p>
+                <p>{{ad.floor_number}}</p>
+                <p>{{ad.metro_distance}}</p>
+                <p>{{ad.total_square}}</p>
+                <p>{{ad.living_square}}</p>
+                <p>{{ad.floor_total}}</p>
+                <p>{{ad.count_room.name}}</p>
+                <p>{{ad.material.name}}</p>
+                <p>{{ad.balcony_type.name}}</p>
+                    <p>{{ad.is_home_appliances}}</p>
+                        <p>{{ad.is_furniture}}</p>
+                            <p>{{ad.cost}}</p>
+                                <p>{{ad.house_number}}</p>
+                                    <p>{{ad.street.name}}</p>
+                                        <p>{{ad.city.name}}</p>
+        <p>{{ad.area_city.name}}</p>
+        <p>{{ad.advertising_object}}</p>
 
 
             {% for category in ad.category.all %}
-                <li>{{category}}</li>
+                <p>{{category}}</p>
             {% endfor %}
     </a>
-        </ul>
+
 
     <ul class="navbar-nav ml-auto">
           <li class="nav-item">

@@ -18,13 +18,13 @@
         {% for item in rents %}
         <div class="post-preview">
           <a href="{% url 'realtyapp:apartment' pk=item.pk %}">
-            <h2 class="post-title">
+            <h2 class="post-title"></h2>
              <h3>{{ item.count_room.name }}-комн. квартира, {{ item.total_square }} м.кв.,</h3>
               <h3>{{ item.floor_number }}/{{ item.floor_total }} этаж</h3>
               <h3>{{ item.street.name }}, {{ item.house_number }}, {{ item.city.name }}</h3>
               <br>
               <h2>{{ item.cost }} {{ item.currency.name }}</h2>
-            </h2>
+
             <h3 class="post-subtitle">
 <!--              Problems look mighty small from 150 miles up-->
             </h3>

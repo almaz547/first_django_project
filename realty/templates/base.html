@@ -51,9 +51,7 @@
             <a class="nav-link" href="{% url 'realtyapp:new_buildings' %}">новостройки</a>
           </li>
 
-<!--          <li class="nav-item">-->
-<!--            <a class="nav-link" href="{% url 'realtyapp:message' %}">телефон</a>-->
-<!--          </li>-->
+
           {% if user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'realtyapp:pers_area' %}">Кабинет</a>
