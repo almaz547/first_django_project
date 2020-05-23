@@ -1,30 +1,34 @@
 {% extends "base.html" %}
+{% load str_extensions %}
 
 {% block title %}
   Аренда
 {% endblock %}
 
 {% block topic %}
-  Аренда
+  {{title|capitalize}}
 {% endblock %}
 
 {% block whattopic %}
-  Квартир
+
 {% endblock %}
 
 {% block content %}
+<h5>Всего найдено квартир:  {{rents_all|length}}</h5>
     <div class="row">
+
       <div class="col-lg-8 col-md-10 mx-auto">
+
         {% for item in rents %}
         <div class="post-preview">
           <a href="{% url 'realtyapp:apartment' pk=item.pk %}">
-            <h2 class="post-title">
+            <h2 class="post-title"></h2>
              <h3>{{ item.count_room.name }}-комн. квартира, {{ item.total_square }} м.кв.,</h3>
               <h3>{{ item.floor_number }}/{{ item.floor_total }} этаж</h3>
               <h3>{{ item.street.name }}, {{ item.house_number }}, {{ item.city.name }}</h3>
               <br>
               <h2>{{ item.cost }} {{ item.currency.name }}</h2>
-            </h2>
+
             <h3 class="post-subtitle">
 <!--              Problems look mighty small from 150 miles up-->
             </h3>
@@ -37,6 +41,24 @@
         <hr>
         <br>
         {% endfor %}
+
+  <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; На первую</a>
+            <a href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
+        {% endif %}
+
+        <span class="current">
+            <h5>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}.</h5>
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Следующая</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">На последнюю &raquo;</a>
+        {% endif %}
+    </span>
+</div>
 <!--        <div class="post-preview">-->
 <!--          <a href="post.html">-->
 <!--            <h2 class="post-title">-->
@@ -76,10 +98,11 @@
 <!--            on July 8, 2019</p>-->
 <!--        </div>-->
 <!--        <hr>-->
+
 <!--         Pager-->
-        <div class="clearfix">
-          <a class="btn btn-primary float-right" href="#">Older Posts &rarr;</a>
-        </div>
+<!--        <div class="clearfix">-->
+<!--          <a class="btn btn-primary float-right" href="#">Older Posts &rarr;</a>-->
+<!--        </div>-->
       </div>
     </div>
 {% endblock %}

@@ -26,6 +26,11 @@ class IndexListView(ListView):
     def get_queryset(self):
         return
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data()
+        context['title'] = 'сайт недвижимости'
+        return context
+
 # def sale(request):
 #     id_category = Category.objects.get(name='sale')
 #     sales = Apartment.objects.filter(category=id_category)
@@ -35,10 +40,17 @@ class SaleListView(ListView):
     model = Apartment
     template_name = 'realtyapp/sale.html'
     context_object_name = 'sales'
+    paginate_by = 5
 
     def get_queryset(self):
-        sales = Apartment.objects.filter(category__name__in=['sale', 'Продажа'])
-        return sales
+        self.sales = Apartment.objects.filter(category__name__in=['sale', 'Продажа'])
+        return self.sales
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data()
+        context['title'] = 'продажа квартир'
+        context['sales_all'] = self.sales
+        return context
 
 # def rent(request):
 #     id_category = Category.objects.get(name='rent')
@@ -49,10 +61,17 @@ class RentListView(ListView):
     model = Apartment
     template_name = 'realtyapp/rent.html'
     context_object_name = 'rents'
+    paginate_by = 5
 
     def get_queryset(self):
-        rents = Apartment.objects.filter(category__name__in=['rent', 'Аренда'])
-        return rents
+        self.rents = Apartment.objects.filter(category__name__in=['rent', 'Аренда'])
+        return self.rents
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data()
+        context['title'] = 'аренда квартир'
+        context['rents_all'] = self.rents
+        return context
 
 class New_buildingsListView(ListView):
     template_name = 'realtyapp/new_buildings.html'
