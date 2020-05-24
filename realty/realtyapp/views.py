@@ -43,7 +43,9 @@ class SaleListView(ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        self.sales = Apartment.objects.filter(category__name__in=['sale', 'Продажа'])
+        self.sales = Apartment.objects.select_related('metro_name', 'count_room', 'material', 'balcony_type',
+                                                      'currency', 'street', 'city', 'area_city').\
+            filter(category__name__in=['sale', 'Продажа'])
         return self.sales
 
     def get_context_data(self, *args, **kwargs):
@@ -64,7 +66,9 @@ class RentListView(ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        self.rents = Apartment.objects.filter(category__name__in=['rent', 'Аренда'])
+        self.rents = Apartment.objects.select_related('metro_name', 'count_room', 'material', 'balcony_type',
+                                                      'currency', 'street', 'city', 'area_city').\
+            filter(category__name__in=['rent', 'Аренда'])
         return self.rents
 
     def get_context_data(self, *args, **kwargs):
@@ -143,27 +147,28 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
 class ApartmentDetailView(DetailView):
     model = Apartment
     template_name = 'realtyapp/apartment.html'
-    context_object_name = 'apartment'
+
 
     def get(self, request, *args, **kwargs):
         self.apartment_id = kwargs['pk']
         return super().get(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
-        apartment = Apartment.objects.get(pk=self.apartment_id)
-        self.images_url = Images_url.objects.filter(apartment=apartment)
-        self.images = Images.objects.filter(apartment=apartment)
-        print(f'self.images  {self.images}')
-        categorys = apartment.category.all()
-        self.list_name_category = []
-        for category in categorys:
-            self.list_name_category.append(category.name)
-        return get_object_or_404(Apartment, pk=self.apartment_id)
+        apartment = Apartment.objects.select_related('metro_name', 'count_room', 'material', 'balcony_type',
+                                                      'currency', 'street', 'city', 'area_city')\
+                                                        .get(pk=self.apartment_id)
+        self.images_url = apartment.get_apart_images_url
+        self.images = apartment.get_apart_images
+        self.categorys = apartment.category.all()
+
+        # return get_object_or_404(Apartment, pk=apartment.pk)
+        return apartment
+
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context['images_url'] = self.images_url
-        context['categorys'] = self.list_name_category
+        context['categorys'] = self.categorys
         context['images'] = self.images
         return context
 
@@ -175,25 +180,18 @@ class PersonalListView(UserPassesTestMixin, ListView):
     model = Apartment
     success_url = reverse_lazy('realtyapp:index')
     template_name = 'realtyapp/personal_area.html'
-    # context_object_name = 'ads_user'
+    # paginate_by = 5
 
     def test_func(self):
         return self.request.user
 
     def get_queryset(self):
-        apartments_user = Apartment.objects.filter(user=self.request.user).all()
-        # self.images = []
-        # for apartment in apartments_user:
-        #     images_apartment = Images.objects.filter(apartment=apartment)
-        #     self.images.append(images_apartment)
+        apartments_user = Apartment.objects.select_related('metro_name', 'count_room', 'material',
+                                                           'balcony_type','currency', 'street', 'city',
+                                    'area_city').prefetch_related('category').filter(user=self.request.user).all()
+
         return apartments_user
 
-
-    # def get_context_data(self, *args, **kwargs):
-    #     context = super().get_context_data(*args, **kwargs)
-    #     print(f'self.images  {self.images}')
-    #     context['images'] = self.images
-    #     return context
 
 class ApartmentCreateFormView(LoginRequiredMixin, FormView):
     form_class = ApartmentForm
@@ -251,7 +249,7 @@ class ApartmentUpdataView(UserPassesTestMixin, FormView):
 
     def get(self, request, *args, **kwargs):
         self.apartment_id = kwargs['pk']
-        self.apartment = Apartment.objects.get(pk=self.apartment_id)
+        # self.apartment = Apartment.objects.get(pk=self.apartment_id)
         return super().get(self, request, *args, **kwargs)
 
     def get_success_url(self):
@@ -264,35 +262,38 @@ class ApartmentUpdataView(UserPassesTestMixin, FormView):
 
     def get_initial(self):
         # print(f'self.kwargs  {self.kwargs}')
-        self.initial['metro_name'] = self.apartment.metro_name
-        self.initial['floor_number'] = self.apartment.floor_number
-        self.initial['metro_distance'] = self.apartment.metro_distance
-        self.initial['total_square'] = self.apartment.total_square
-        self.initial['living_square'] = self.apartment.living_square
-        self.initial['floor_total'] = self.apartment.floor_total
-        self.initial['count_room'] = self.apartment.count_room
-        self.initial['material'] = self.apartment.material
-        self.initial['balcony_type'] = self.apartment.balcony_type
-        self.initial['is_home_appliances'] = self.apartment.is_home_appliances
-        self.initial['is_furniture'] = self.apartment.is_furniture
-        self.initial['cost'] = self.apartment.cost
-        self.initial['currency'] = self.apartment.currency
-        self.initial['house_number'] = self.apartment.house_number
-        self.initial['street'] = self.apartment.street
-        self.initial['city'] = self.apartment.city
-        self.initial['area_city'] = self.apartment.area_city
-        self.initial['advertising_object'] = self.apartment.advertising_object
-        self.initial['description'] = self.apartment.description
+        apartment = Apartment.objects.select_related('metro_name', 'count_room', 'material',
+                                                           'balcony_type','currency', 'street', 'city',
+                                    'area_city').prefetch_related('category').get(pk=self.apartment_id)
+        self.initial['metro_name'] = apartment.metro_name
+        self.initial['floor_number'] = apartment.floor_number
+        self.initial['metro_distance'] = apartment.metro_distance
+        self.initial['total_square'] = apartment.total_square
+        self.initial['living_square'] = apartment.living_square
+        self.initial['floor_total'] = apartment.floor_total
+        self.initial['count_room'] = apartment.count_room
+        self.initial['material'] = apartment.material
+        self.initial['balcony_type'] = apartment.balcony_type
+        self.initial['is_home_appliances'] = apartment.is_home_appliances
+        self.initial['is_furniture'] = apartment.is_furniture
+        self.initial['cost'] = apartment.cost
+        self.initial['currency'] = apartment.currency
+        self.initial['house_number'] = apartment.house_number
+        self.initial['street'] = apartment.street
+        self.initial['city'] = apartment.city
+        self.initial['area_city'] = apartment.area_city
+        self.initial['advertising_object'] = apartment.advertising_object
+        self.initial['description'] = apartment.description
 
         list_category = []
-        for category in self.apartment.category.all():
+        for category in apartment.category.all():
             list_category.append(category)
         self.initial['category'] = list_category
         return super().get_initial()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
-        images = Images.objects.filter(apartment=self.apartment)
+        images = Images.objects.filter(apartment=self.apartment_id)
         context['images'] = images
         return context
 
@@ -348,16 +349,21 @@ class ApartmentUpdataView(UserPassesTestMixin, FormView):
         return super().post(request, *args, **kwargs)
 
 
-
-
-
 class  ApartmentDeleteView(UserPassesTestMixin, DeleteView):
     template_name = 'realtyapp/delete_confirm.html'
     model = Apartment
     success_url = reverse_lazy('realtyapp:pers_area')
 
+
     def test_func(self):
+        self.pk = self.kwargs.get(self.pk_url_kwarg)
         return self.request.user
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.select_related('metro_name', 'count_room', 'material','balcony_type',
+                                   'currency', 'street', 'city', 'area_city').filter(pk=self.pk)
+        return queryset
 
 
 class  ImageDeleteView(UserPassesTestMixin, DeleteView):

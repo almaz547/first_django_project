@@ -1,5 +1,6 @@
 from django.db import models
 from userapp.models import ApartmentUser
+from django.utils.functional import cached_property
 
 
 class TimeStamp(models.Model):
@@ -65,7 +66,6 @@ class Area_city(models.Model):
 
 class Apartment(TimeStamp):
 
-
     url_object = models.URLField(blank=True)
     metro_name = models.ForeignKey(Metro, blank=True, null=True, on_delete=models.CASCADE)
     metro_distance = models.CharField(max_length=50, blank=True)
@@ -92,8 +92,18 @@ class Apartment(TimeStamp):
     advertising_object = models.CharField(max_length=70, blank=True)
     description = models.CharField(max_length=150, blank=True)
     category = models.ManyToManyField(Category)
-
     user = models.ForeignKey(ApartmentUser, on_delete=models.CASCADE)
+
+    @cached_property
+    def get_apart_images_url(self):
+        images_url = Images_url.objects.filter(apartment=self)
+        return images_url
+
+    @cached_property
+    def get_apart_images(self):
+        images = Images.objects.filter(apartment=self)
+        return images
+
 
 
 class Images(models.Model):

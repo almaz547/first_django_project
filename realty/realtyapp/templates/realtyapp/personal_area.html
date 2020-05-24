@@ -24,39 +24,32 @@
         <li class="list-inline text-center">
             <h2>Ваши объявления</h2>
         </li>
-
-                       {% for ad in object_list %}
-
+            {% with pers_list=object_list %}
+               {% for ad in pers_list %}
     </ul>
-
         <a href="{% url 'realtyapp:apartment' pk=ad.pk %}">
-
-
                 <p>{{ad.description}}</p>
-                <p>{{ad.metro_name.name}}</p>
+                <p>{{ad.metro_name}}</p>
                 <p>{{ad.floor_number}}</p>
                 <p>{{ad.metro_distance}}</p>
                 <p>{{ad.total_square}}</p>
                 <p>{{ad.living_square}}</p>
                 <p>{{ad.floor_total}}</p>
-                <p>{{ad.count_room.name}}</p>
-                <p>{{ad.material.name}}</p>
-                <p>{{ad.balcony_type.name}}</p>
+                <p>{{ad.count_room}}</p>
+                <p>{{ad.material}}</p>
+                <p>{{ad.balcony_type}}</p>
                     <p>{{ad.is_home_appliances}}</p>
                         <p>{{ad.is_furniture}}</p>
                             <p>{{ad.cost}}</p>
                                 <p>{{ad.house_number}}</p>
-                                    <p>{{ad.street.name}}</p>
-                                        <p>{{ad.city.name}}</p>
-        <p>{{ad.area_city.name}}</p>
+                                    <p>{{ad.street}}</p>
+                                        <p>{{ad.city}}</p>
+        <p>{{ad.area_city}}</p>
         <p>{{ad.advertising_object}}</p>
-
-
-            {% for category in ad.category.all %}
-                <p>{{category}}</p>
+            {% for categor in ad.category.all %}
+            {{categor}}
             {% endfor %}
     </a>
-
 
     <ul class="navbar-nav ml-auto">
           <li class="nav-item">
@@ -71,6 +64,7 @@
 
 
             {% endfor %}
+        {% endwith %}
     </ul>
 
 

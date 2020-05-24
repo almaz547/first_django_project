@@ -36,19 +36,17 @@
         </form>
 
             <hr>
+            {% if images %}
                     Ваши фотографии
                 {% for imag in images %}
 
                     <img src="{{imag.image.url}}">
                     <a href="{% url 'realtyapp:delete_image' pk=imag.pk %}">
                         <p class="btn btn-danger">Удалить фото</p>
-                        <p>
-                            <hr>
-                        </p>
+                        <hr>
                     </a>
                 {% endfor %}
-
-
+            {% endif %}
     </div>
 </div>
 
